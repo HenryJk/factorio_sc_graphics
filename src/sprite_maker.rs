@@ -1,11 +1,11 @@
 use crate::anim::Anim;
 use crate::sprite_config::SpriteFormat;
-use image::{DynamicImage, RgbaImage, ImageBuffer, GenericImageView, GenericImage, Pixel};
-use std::cmp::max;
+use image::{RgbaImage, GenericImageView, GenericImage, Pixel};
 use std::f32::consts::PI;
 use image::imageops::{overlay, crop_imm, resize, FilterType};
 use std::error::Error;
 
+#[derive(Copy, Clone)]
 pub enum Preset {
     normal,
     mask,
@@ -84,7 +84,7 @@ pub fn makeSprites(
             let source_idx = anim_idx * source_direction_count + source_ori;
             let frame = &frames[source_idx as usize];
             let start_x = if mirrored {
-                col_idx * frame_width + frame.center_x2.0 / 2
+                col_idx * frame_width + (frame_width - 2 * frame.width + frame.center_x2.0) / 2
             } else {
                 col_idx * frame_width + (frame_width - frame.center_x2.0) / 2
             } as u32;
