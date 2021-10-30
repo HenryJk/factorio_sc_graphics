@@ -228,6 +228,7 @@ pub fn writeAnimations(
                     Preset::mask => format!("{}_{}_mask", &sprite_group.category, format.name),
                     Preset::light => format!("{}_{}_light", &sprite_group.category, format.name),
                 };
+                let anim_name = anim_name.replace("-", "_");
                 let mut params = Vec::new();
                 if format.scalable { params.push(String::from("scale")); }
                 if let Preset::mask = preset { params.push(String::from("tint")); }

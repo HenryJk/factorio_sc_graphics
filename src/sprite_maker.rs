@@ -26,14 +26,14 @@ pub fn makeSprites(
     base_offset_x2: (i32, i32),
     preset: Preset,
 ) -> Result<Option<FactorioSprites>, Box<dyn Error>> {
-    let mut frames = Vec::with_capacity((format.end_index - format.start_index) as usize);
-    let source_direction_count = (format.end_index - format.start_index) / format.animation_length;
-    for i in format.start_index..format.end_index {
+    let mut frames = Vec::with_capacity((format.source_range_index.1 - format.source_range_index.0) as usize);
+    let source_direction_count = (format.source_range_index.1 - format.source_range_index.0) / format.animation_length;
+    for i in format.source_range_index.0..format.source_range_index.1 {
         if let Some(frame) = anim.getFrame(i as usize)? { frames.push(frame) };
     }
     let mut frame_width = 0;
     let mut frame_height = 0;
-    for i in 0..(format.end_index - format.start_index) {
+    for i in 0..(format.source_range_index.1 - format.source_range_index.0) {
         let frame = &mut frames[i as usize];
         let mut theta = (i % source_direction_count) as f32;
         if source_direction_count > 1 {

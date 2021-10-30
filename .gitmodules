@@ -1,3 +1,3 @@
-[submodule "CascLib"]
-	path = CascLib
-	url = https://github.com/ladislav-zezula/CascLib
+[submodule "external/CascLib"]
+	path = external/CascLib
+	url = git@github.com:ladislav-zezula/CascLib.git
