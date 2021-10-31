@@ -12,6 +12,7 @@ pub enum Preset {
     light,
 }
 
+#[derive(Clone)]
 pub struct FactorioSprites {
     pub images: Vec<RgbaImage>,
     pub slice: i32,
@@ -31,6 +32,15 @@ pub fn makeSprites(
     for i in format.source_range_index.0..format.source_range_index.1 {
         if let Some(frame) = anim.getFrame(i as usize)? { frames.push(frame) };
     }
+    let used_directions = if let Some(directions) = &format.used_directions {
+        if *(&directions.len()) != *(&format.direction_count) as usize {
+            panic!("format.direction_count and format.used_directions.len() does not match!")
+        }
+        directions.clone()
+    } else {
+        let step = 2 * (source_direction_count - 1) / &format.direction_count;
+        (0..format.direction_count).map(|x| x * step).collect()
+    };
     let mut frame_width = 0;
     let mut frame_height = 0;
     for i in 0..(format.source_range_index.1 - format.source_range_index.0) {
@@ -52,11 +62,11 @@ pub fn makeSprites(
             .max(frame.center_x2.1)
             .max(2 * frame.height - frame.center_x2.1);
     }
-    let col_count = 1.max(1920 / frame_width);
-    let row_count = 1.max(1080 / frame_height);
-    let frame_per_img = col_count * row_count;
+    let col_count = 1.max(4096 / frame_width);
+    let row_count = 1.max(4096 / frame_height);
+    let frame_per_img = if format.split_anim { format.animation_length } else { col_count * row_count };
     let image_count = (
-        format.direction_count
+        used_directions.len() as i32
             * format.animation_length
             + format.empty_pad
             + frame_per_img
@@ -71,14 +81,13 @@ pub fn makeSprites(
         image_count as usize
     ];
 
-    let ori_step = 2 * (source_direction_count - 1) / format.direction_count;
-    for ori in 0..format.direction_count {
+    for ori in 0..used_directions.len() as i32 {
         for anim_idx in 0..format.animation_length {
             let out_idx = ori * format.animation_length + anim_idx + format.empty_pad;
-            let img_idx = out_idx / (row_count * col_count) as i32;
-            let row_idx = (out_idx / col_count as i32) % row_count;
-            let col_idx = out_idx % col_count as i32;
-            let mut source_ori = ori * ori_step;
+            let img_idx = out_idx / frame_per_img;
+            let row_idx = (out_idx % frame_per_img as i32) / col_count;
+            let col_idx = (out_idx % frame_per_img) % col_count as i32;
+            let mut source_ori = used_directions[ori as usize];
             let mirrored = source_ori >= source_direction_count;
             if mirrored { source_ori = 2 * (source_direction_count - 1) - source_ori; }
             let source_idx = anim_idx * source_direction_count + source_ori;
@@ -136,6 +145,62 @@ pub fn makeSprites(
                     }
                 }
             }
+            if cfg!(debug_assertions) {
+                unsafe {
+                    let green_pixel = image::Rgba([0, 255, 0, 255]);
+                    let x_center1 = (frame_width - 1) / 2;
+                    let x_center2 = frame_width / 2;
+                    let y_center1 = (frame_height - 1) / 2;
+                    let y_center2 = frame_height / 2;
+                    let corner_x = (frame_width * col_idx) as u32;
+                    let corner_y = (frame_height * row_idx) as u32;
+
+                    for y in 0..frame_height {
+                        let draw;
+                        if y <= y_center1 {
+                            draw = ((y_center1 - y) % 8) >= 4;
+                        } else {
+                            draw = ((y - y_center2) % 8) >= 4;
+                        }
+                        if draw {
+                            output[img_idx as usize]
+                                .unsafe_put_pixel(
+                                    corner_x + x_center1 as u32,
+                                    corner_y + y as u32,
+                                    green_pixel,
+                                );
+                            output[img_idx as usize]
+                                .unsafe_put_pixel(
+                                    corner_x + x_center2 as u32,
+                                    corner_y + y as u32,
+                                    green_pixel,
+                                );
+                        }
+                    }
+                    for x in 0..frame_width {
+                        let draw;
+                        if x <= x_center1 {
+                            draw = ((x_center1 - x) % 8) >= 4;
+                        } else {
+                            draw = ((x - x_center2) % 8) >= 4;
+                        }
+                        if draw {
+                            output[img_idx as usize]
+                                .unsafe_put_pixel(
+                                    corner_x + x as u32,
+                                    corner_y + y_center1 as u32,
+                                    green_pixel,
+                                );
+                            output[img_idx as usize]
+                                .unsafe_put_pixel(
+                                    corner_x + x as u32,
+                                    corner_y + y_center2 as u32,
+                                    green_pixel,
+                                );
+                        }
+                    }
+                }
+            }
         }
     }
     Ok(Some(FactorioSprites {
@@ -153,9 +218,9 @@ pub fn makeSpritesSd(
 ) -> FactorioSprites {
     let sd_width = hd_sprites.width / 2;
     let sd_height = hd_sprites.height / 2;
-    let col_count = 1.max(1920 / sd_width);
-    let row_count = 1.max(1080 / sd_height);
-    let frame_per_img = col_count * row_count;
+    let col_count = 1.max(2048 / sd_width);
+    let row_count = 1.max(2048 / sd_height);
+    let frame_per_img = if format.split_anim { format.animation_length } else { col_count * row_count };
     let image_count = (
         format.direction_count
             * format.animation_length

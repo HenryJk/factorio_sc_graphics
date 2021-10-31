@@ -1,7 +1,9 @@
-/target
+target/
 
+luasrc/sc_graphics_extractor
+luasrc/graphics
 anim.lua
-hd/
-sd/
+graphics/
+build/
 
 .idea/

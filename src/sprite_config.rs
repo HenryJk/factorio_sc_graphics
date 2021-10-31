@@ -5,6 +5,7 @@ pub struct SpriteFormat {
     pub radial_offset_x2: (f32, f32),
     pub final_offset: (f32, f32),
     pub direction_count: i32,
+    pub used_directions: Option<Vec<i32>>,
     pub animation_length: i32,
     pub empty_pad: i32,
     pub source_range_index: (i32, i32),
@@ -12,7 +13,8 @@ pub struct SpriteFormat {
     pub draw_as_glow: bool,
     pub scalable: bool,
     pub run_mode: String,
-    pub frame_sequence: Option<Vec<u32>>,
+    pub frame_sequence: Option<Vec<i32>>,
+    pub split_anim: bool,
 }
 
 pub struct SpriteGroup {
@@ -29,6 +31,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
         radial_offset_x2: (0.0, 0.0),
         final_offset: (0.0, 0.0),
         direction_count: 0,
+        used_directions: None,
         animation_length: 0,
         empty_pad: 0,
         source_range_index: (0, 0),
@@ -37,6 +40,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
         scalable: false,
         run_mode: String::from("forward"),
         frame_sequence: None,
+        split_anim: false
     };
     vec![
         SpriteGroup {
@@ -148,6 +152,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 8,
                     source_range_index: (0, 136),
+                    draw_as_shadow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
                 SpriteFormat {
@@ -155,6 +160,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 4,
                     animation_length: 8,
                     source_range_index: (136, 272),
+                    draw_as_shadow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
                 SpriteFormat {
@@ -162,6 +168,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 8,
                     source_range_index: (272, 408),
+                    draw_as_shadow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -176,6 +183,63 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 5,
                     source_range_index: (0, 5),
+                    empty_pad: 1,
+                    ..DEFAULT_SPRITE_FORMAT.clone()
+                },
+            ],
+        },
+        SpriteGroup {
+            source: String::from("anim/main_134.anim"),
+            category: String::from("archon"),
+            base_offset_x2: (-36, -20),
+            sprites: vec![
+                SpriteFormat {
+                    name: String::from("flame"),
+                    direction_count: 1,
+                    animation_length: 10,
+                    source_range_index: (0, 10),
+                    draw_as_glow: true,
+                    frame_sequence: Option::from(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2]),
+                    ..DEFAULT_SPRITE_FORMAT.clone()
+                },
+            ],
+        },
+        SpriteGroup {
+            source: String::from("anim/main_135.anim"),
+            category: String::from("archon"),
+            base_offset_x2: (-14, -20),
+            sprites: vec![
+                SpriteFormat {
+                    name: String::from("attack"),
+                    direction_count: 32,
+                    animation_length: 10,
+                    source_range_index: (0, 170),
+                    radial_offset_x2: (30.0, -20.0),
+                    frame_sequence: Option::from(vec![2, 3, 4, 5, 6, 7, 7, 7, 8, 9, 10, 3, 3, 2, 2, 1, 1]),
+                    ..DEFAULT_SPRITE_FORMAT.clone()
+                },
+                SpriteFormat {
+                    name: String::from("run"),
+                    direction_count: 32,
+                    animation_length: 4,
+                    source_range_index: (170, 238),
+                    radial_offset_x2: (30.0, -20.0),
+                    run_mode: String::from("forward-then-backward"),
+                    ..DEFAULT_SPRITE_FORMAT.clone()
+                },
+            ],
+        },
+        SpriteGroup {
+            source: String::from("anim/main_136.anim"),
+            category: String::from("archon"),
+            base_offset_x2: (-36, -20),
+            sprites: vec![
+                SpriteFormat {
+                    name: String::from("orbs"),
+                    direction_count: 1,
+                    animation_length: 15,
+                    source_range_index: (0, 15),
+                    draw_as_glow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -241,6 +305,9 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 8,
                     animation_length: 4,
                     source_range_index: (0, 68),
+                    draw_as_glow: true,
+                    scalable: true,
+                    split_anim: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -255,6 +322,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 14,
                     source_range_index: (0, 14),
+                    draw_as_glow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -269,6 +337,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 5,
                     source_range_index: (0, 5),
+                    draw_as_glow: true,
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -283,6 +352,7 @@ pub fn getConfig() -> Vec<SpriteGroup> {
                     direction_count: 1,
                     animation_length: 6,
                     source_range_index: (0, 6),
+                    extra_offset_x2: (-600, 0),
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],
@@ -294,16 +364,20 @@ pub fn getConfig() -> Vec<SpriteGroup> {
             sprites: vec![
                 SpriteFormat {
                     name: String::from("lightning-long"),
-                    direction_count: 32,
+                    direction_count: 1,
                     animation_length: 2,
                     source_range_index: (0, 34),
+                    used_directions: Option::from(vec![8]),
+                    frame_sequence: Option::from(vec![1, 2, 1, 2, 1, 2]),
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
                 SpriteFormat {
                     name: String::from("lightning-short"),
-                    direction_count: 32,
+                    direction_count: 1,
                     animation_length: 2,
                     source_range_index: (34, 68),
+                    used_directions: Option::from(vec![8]),
+                    frame_sequence: Option::from(vec![1, 2, 1, 2, 1, 2]),
                     ..DEFAULT_SPRITE_FORMAT.clone()
                 },
             ],

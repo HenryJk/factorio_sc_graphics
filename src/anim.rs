@@ -21,17 +21,6 @@ pub struct LayerInfo {
     height: u16,
 }
 
-// pub struct Frame {
-//     pub center_x2: (i16, i16),
-//     pub diffuse: Option<SubImage<&'a DynamicImage>>,
-//     pub bright: Option<SubImage<&'a DynamicImage>>,
-//     pub teamcolor: Option<SubImage<&'a DynamicImage>>,
-//     pub emissive: Option<SubImage<&'a DynamicImage>>,
-//     pub normal: Option<SubImage<&'a DynamicImage>>,
-//     pub specular: Option<SubImage<&'a DynamicImage>>,
-//     pub ao_depth: Option<SubImage<&'a DynamicImage>>,
-// }
-
 #[derive(Debug)]
 struct FrameInfo {
     pub tex_x: u16,
@@ -161,4 +150,3 @@ impl Anim {
         Ok(Some(frame))
     }
 }
-

@@ -8,11 +8,13 @@ pub trait LuaSyntax {
     }
 }
 
+#[derive(Clone)]
 pub struct Block {
     pub stats: Vec<Stat>,
     pub last_stat: Option<LastStat>,
 }
 
+#[derive(Clone)]
 pub enum Stat {
     Assignment{var_list: Vec<String>, exp_list: Vec<Exp>},
     FuncCall{function: Exp, par_list: Vec<Exp>},
@@ -21,11 +23,13 @@ pub enum Stat {
     //If{condition: Exp, then_body: Block, elseif: Vec<Stat::ElseIf>, else_body: Block},
 }
 
+#[derive(Clone)]
 pub enum LastStat {
     Return{exp_list: Vec<Exp>},
     Break,
 }
 
+#[derive(Clone)]
 pub enum Exp {
     Nil,
     Bool(bool),

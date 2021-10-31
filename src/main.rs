@@ -13,48 +13,15 @@ mod lua;
 mod factorio_anim_writer;
 
 use std::error::Error;
+use std::env::args;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    //let storage_path = CString::new("/home/henryj/Games/battlenet/drive_c/Program Files (x86)/StarCraft/")?;
     let mut storage = casc::CascStorage::open("/home/henryj/Games/battlenet/drive_c/Program Files (x86)/StarCraft/")?;
-    // let mut fp = storage.openFile("anim/main_151.anim")?;
-    // let anim = anim::Anim::fromFile(fp)?;
-    // let config = SpriteFormat {
-    //     name: String::from("attack"),
-    //     direction_count: 32,
-    //     animation_length: 5,
-    //     start_index: 0,
-    //     end_index: 5 * 17,
-    //     extra_offset_x2: (12, 0),
-    //     ..DEFAULT_SPRITE_FORMAT
-    // };
-    // let result = match sprite_maker::makeSprites(
-    //     &anim,
-    //     &config,
-    //     (0, 0),
-    //     Preset::normal
-    // )? {
-    //     Some(res) => res,
-    //     None => return Ok(()),
-    // };
-    //
-    // let result = sprite_maker::makeSpritesSd(&result, &config);
-    // println!("{}", result.images.len());
-    // for i in 0..3 {
-    //     &result.images[i as usize].save(format!("{}.png", i));
-    // }
-
-    factorio_anim_writer::writeAnimations(&mut storage,&sprite_config::getConfig())?;
+    let argv: Vec<String> = args().collect();
+    let working_dir = String::from(".");
+    let output_dir = if argv.len() > 1 {&argv[1]} else {&working_dir};
+    factorio_anim_writer::writeAnimations(&mut storage,&sprite_config::getConfig(), output_dir)?;
     storage.close()?;
-
-    // let mut res = LuaExp::Array(Vec::new());
-    // match &mut res {
-    //     LuaExp::Array(arr) => {
-    //         arr.push(LuaExp::Nil);
-    //     },
-    //     _ => {}
-    // }
-    // println!("{}", res.build(0));
 
     Ok(())
 }

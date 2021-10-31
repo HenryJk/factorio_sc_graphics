@@ -1,0 +1,11 @@
+{
+  "name": "sc-redux",
+  "version": "0.0.1",
+  "title": "StarCraft Reloaded",
+  "author": "HJk",
+  "homepage": "",
+  "description": "StarCraft units in Factorio",
+  "factorio_version": "1.1",
+  "dependencies": ["base >= 1.1.0", "? sc-redux-assets >= 0.0.1"]
+}
+
